@@ -26,9 +26,7 @@ const corsOptions: CorsOptions = {
         try {
             const parsedOrigin = new URL(origin);
             isVercelOrigin = parsedOrigin.protocol === 'https:' && parsedOrigin.hostname.endsWith('.vercel.app');
-        } catch (_error) {
-            isVercelOrigin = false;
-        }
+        } catch (_error) {}
 
         const isAllowedOrigin = allowedOrigins.includes(origin) || isVercelOrigin;
 
