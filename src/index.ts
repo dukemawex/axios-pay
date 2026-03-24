@@ -7,12 +7,11 @@ import apiRoutes from './routes/api';
 import authRoutes from './routes/auth';
 
 const app = express();
+app.options('*', cors());
 const PORT = process.env.PORT || 8080;
 
 const allowedOrigins = [
     'https://axios-pay.vercel.app',
-    'https://axios-pay-ss47w.ondigitalocean.app',
-    'http://localhost:3000',
     'http://localhost:5173',
 ];
 
@@ -22,18 +21,7 @@ const corsOptions: CorsOptions = {
             // Allow non-browser or same-origin requests that may not include Origin.
             return callback(null, true);
         }
-
-        let isVercelOrigin = false;
-        try {
-            const parsedOrigin = new URL(origin);
-            isVercelOrigin = parsedOrigin.protocol === 'https:' && parsedOrigin.hostname.endsWith('.vercel.app');
-        } catch (_error) {
-            // Malformed origins are treated as disallowed below.
-        }
-
-        const isAllowedOrigin = allowedOrigins.includes(origin) || isVercelOrigin;
-
-        if (isAllowedOrigin) {
+        if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
 
@@ -41,10 +29,10 @@ const corsOptions: CorsOptions = {
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(helmet());
 
