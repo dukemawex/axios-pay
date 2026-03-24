@@ -69,6 +69,10 @@ app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'OK', service: 'Axios Pay Production Engine' });
 });
 
+app.get('/', staticLimiter, (_req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+});
+
 // Serve frontend static files (built by Vite)
 app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
@@ -83,5 +87,6 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`PORT=${PORT}`);
     console.log(`🚀 Axios Pay Production Engine started on port ${PORT}`);
 });
