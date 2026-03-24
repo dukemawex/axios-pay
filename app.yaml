@@ -46,12 +46,15 @@ static_sites:
     source_dir: frontend
     build_command: npm install && npm run build
     output_dir: dist
+    index_document: index.html
+    error_document: index.html
     envs:
       - key: VITE_API_BASE_URL
         scope: BUILD_TIME
         value: ${axios-pay-backend.PUBLIC_URL}/api
     routes:
       - path: /
+
 
 databases:
   - name: axios-pay-db
