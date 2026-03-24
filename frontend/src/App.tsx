@@ -214,29 +214,83 @@ function AuthForm({ type, setToken, setUser, setView }: {
   );
 }
 
+const CURRENCY_FLAGS: Record<string, string> = {
+  NGN: '🇳🇬',
+  UGX: '🇺🇬',
+  GHS: '🇬🇭',
+  KES: '🇰🇪',
+  ZAR: '🇿🇦',
+};
+
+const SUPPORTED_CURRENCIES = ['NGN', 'UGX', 'GHS', 'KES', 'ZAR'];
+
 function Dashboard({ token, user, onLogout }: { token: string; user: { id: string; name: string; email: string }; onLogout: () => void }) {
+  const [wallets, setWallets] = useState<{ currency: string; balance: number }[]>([]);
+  const [loadingWallets, setLoadingWallets] = useState(true);
+  const [walletError, setWalletError] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/wallet/balances`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const fetched: Record<string, number> = {};
+          for (const w of data.wallets) fetched[w.currency] = Number(w.balance);
+          setWallets(SUPPORTED_CURRENCIES.map(c => ({ currency: c, balance: fetched[c] ?? 0 })));
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load wallet balances:', err);
+        setWallets(SUPPORTED_CURRENCIES.map(c => ({ currency: c, balance: 0 })));
+        setWalletError(true);
+      })
+      .finally(() => setLoadingWallets(false));
+  }, [token]);
+
   return (
     <div className="max-w-lg w-full">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-        <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100">
-          <ShieldCheck className="text-emerald-500 w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Session Active</h2>
-        <p className="text-gray-500 text-sm mb-1">Welcome, {user.name}</p>
-        <p className="text-gray-400 text-xs mb-6">{user.email}</p>
-
-        <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-6 text-left">
-          <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Session Token</p>
-          <p className="text-xs font-mono text-gray-600 break-all">{token.slice(0, 40)}…</p>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 shrink-0">
+            <ShieldCheck className="text-emerald-500 w-6 h-6" />
+          </div>
+          <div className="text-left">
+            <h2 className="text-lg font-bold text-gray-900">{user.name}</h2>
+            <p className="text-gray-400 text-xs">{user.email}</p>
+          </div>
         </div>
 
-        <p className="text-gray-500 text-sm mb-6">
-          Multi-currency liquidity across African markets — NGN, UGX, GHS, KES, ZAR.
-        </p>
+        <div className="mb-4">
+          <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-3">Multi-Currency Liquidity</p>
+          {walletError && (
+            <p className="text-xs text-red-500 mb-2">Could not load balances. Showing cached data.</p>
+          )}
+          {loadingWallets ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2">
+              {wallets.map(w => (
+                <div key={w.currency} className="flex items-center justify-between bg-gray-50 rounded-lg border border-gray-200 px-4 py-2.5">
+                  <span className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                    <span>{CURRENCY_FLAGS[w.currency]}</span>
+                    {w.currency}
+                  </span>
+                  <span className="text-sm font-mono text-gray-900">
+                    {w.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <button
           onClick={onLogout}
-          className="text-[11px] font-bold uppercase tracking-widest text-gray-500 border border-gray-200 px-6 py-2.5 rounded-lg hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all"
+          className="w-full text-[11px] font-bold uppercase tracking-widest text-gray-500 border border-gray-200 px-6 py-2.5 rounded-lg hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all mt-2"
         >
           Terminate Session
         </button>
