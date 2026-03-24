@@ -35,7 +35,13 @@ export default function App() {
           </div>
           {token ? (
             <button onClick={handleLogout} className="text-zinc-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
-              <LogOut className="w-4 h-4" /> Sign Out
+            <div className="flex items-center gap-4">
+  <span className="text-zinc-500 text-sm hidden md:block">Welcome, {user?.name || 'User'}</span>
+  <button onClick={handleLogout} className="text-zinc-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
+    <LogOut className="w-4 h-4" /> Sign Out
+  </button>
+</div>
+
             </button>
           ) : (
             <div className="text-zinc-400 text-sm flex items-center gap-2">
