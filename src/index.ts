@@ -18,6 +18,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
+// Root Route
+app.get('/', (req: Request, res: Response) => { res.status(200).json({ status: 'ok', message: 'Axios Pay API is running' }); });
+
+
 // API Routes
 app.use('/api', apiRoutes);
 
@@ -37,7 +41,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`🚀 Axios Pay MVP Engine started on port ${PORT}`);
     console.log(`🏦 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔌 Interswitch Env: ${process.env.INTERSWITCH_ENV || 'sandbox'}`);

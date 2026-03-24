@@ -33,7 +33,7 @@ static_sites:
   - name: axios-pay-frontend
     github:
       branch: main
-      repo: your-github-username/axios-pay
+      repo: dukemawex/axios-pay
       deploy_on_push: true
     source_dir: frontend
     build_command: npm install && npm run build
